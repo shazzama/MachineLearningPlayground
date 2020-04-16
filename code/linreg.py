@@ -10,17 +10,15 @@ class LinearRegression:
     def fit(self, X, y):
         Z = self.__newBasis(X)
         self.w = np.linalg.lstsq(Z.T@Z, Z.T@y)
-        print("SELF w")
-        print(self.w[0].shape)
 
     def predict(self, Xtest):
         Z = self.__newBasis(Xtest)
-        print("Ztest shape")
-        print(Z.shape)
         return Z@self.w[0]
 
     def __newBasis(self, X):
         n, d = X.shape
-        Z = np.ones((n, d+1))
-        Z[:,1:] = X
+        Z = np.ones((n, d * self.p))
+        for i in range(2, self.p +1):
+            new_col = np.power(X, i)
+            Z[:,d*(i-1):d*i] = new_col
         return Z

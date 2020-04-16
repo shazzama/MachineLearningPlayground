@@ -101,16 +101,62 @@ if __name__ == '__main__':
         X, y = train_set
         Xtest, ytest = test_set
 
-        model = LinearRegression(1)
-        model.fit(X, y)
+        # model = LinearRegression(3)
+        # model.fit(X, y)
         # tr_err = model.predict(X)
         # print(tr_err)
         # print("Train error: %.3f" % tr_err)
         #
         # te_err = model.predict(Xtest)
         # print("Test error: %.3f" % te_err)
+        #
+        # test_and_plot(model, X, y, Xtest, ytest, "LinearReg", "linreg.pdf")
+        N, d = X.shape
+        train_indice = 0
+        valid_indice_one = int((N/5) * 3)
+        valid_indice_two = int((N/5) * 4)
 
-        test_and_plot(model, X, y, Xtest, ytest, "LinearReg", "linreg.pdf")
+        Xtrain = X[train_indice:valid_indice_one-1]
+        ytrain = y[train_indice:valid_indice_one-1]
+
+        Xvalidate_one = X[valid_indice_one:valid_indice_two-1]
+        yvalidate_one = y[valid_indice_one:valid_indice_two-1]
+
+        Xvalidate_two = X[valid_indice_two:]
+        yvalidate_two = y[valid_indice_two:]
+
+        num_of_polynomials = 5
+        best_poly = 1
+        best_err = 100
+        for poly in range(1, num_of_polynomials):
+            print("Polynomial degree: %.3f" % poly)
+            model = LinearRegression(poly)
+            model.fit(Xtrain,ytrain)
+            y_hat_train = model.predict(Xtrain)
+            y_hat_validate_one = model.predict(Xvalidate_one)
+            y_hat_validate_two = model.predict(Xvalidate_two)
+
+            tr_err = np.mean((y_hat_train - ytrain)**2)
+            va_err_one = np.mean((y_hat_validate_one - yvalidate_one)**2)
+            va_err_two = np.mean((y_hat_validate_two - yvalidate_two)**2)
+            print("Train error: %.3f" % tr_err)
+            print("Val1 error: %.3f" % va_err_one)
+            print("Val2 error: %.3f \n" % va_err_two)
+
+
+            sum_err = (va_err_one + va_err_two)/ 2
+            if sum_err < best_err:
+                best_err = sum_err
+                best_poly = poly
+
+        model = LinearRegression(best_poly)
+        model.fit(Xtrain, ytrain)
+        y_hat_test = model.predict(Xtest)
+        te_err = np.mean((y_hat_test - ytest)**2)
+        print("Test error: %.3f" % te_err)
+
+
+
 
 
 
